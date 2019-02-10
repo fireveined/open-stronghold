@@ -1,2 +1,6 @@
 index.js
 node_modules
+.idea
+assets_conventer
+wasm_modules
+data

@@ -6,22 +6,38 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "run-script-os",
-    "watch:win32": "watchify -p [ tsify ] .\\src\\main.ts -o index.js",
-    "watch:darwin:linux:": "watchify -p [ tsify ] ./src/main.ts -o index.js",
+    "watch:win32": "watchify -v -p [ tsify -p ..\\tsconfig.json ] .\\src\\index.ts -o index.js",
+    "watch:darwin:linux:": "watchify -p [ tsify ] ./src/index.ts -o index.js",
     "build": "run-script-os",
-    "build:win32": "browserify .\\src\\main.ts -p [ tsify ] > index.js && uglifyjs --output .\\index.js  --compress --mangle -- .\\index.js",
-    "build:darwin:linux:": "browserify ./src/main.ts -p [ tsify ] > index.js && uglifyjs --output ./index.js  --compress --mangle -- ./index.js"
+    "build:win32": "browserify .\\src\\index.ts -p [ tsify ] > index.js",
+    "start": "http-server",
+    "build:darwin:linux:": "browserify ./src/index.ts -p [ tsify ] > index.js && uglifyjs --output ./index.js  --compress --mangle -- ./index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/event-emitter": "^0.3.2",
+    "@types/kefir": "^3.7.0",
     "browserify": "^16.2.2",
+    "event-emitter": "^0.3.5",
+    "http-server": "^0.11.1",
+    "kefir": "^3.8.3",
+    "perform-ecs": "^0.6.0",
+    "pixi-sound": "^2.0.2",
+    "pixi-tween": "^0.2.0",
+    "pixi-viewport": "^3.0.0",
     "pixi.js": "^4.8.1",
+    "reflect-metadata": "^0.1.12",
+    "stats-js": "^1.0.0-alpha1",
+    "ste-events": "^1.4.6",
+    "ts-events": "^3.2.0",
     "tsify": "^4.0.0",
-    "typescript": "^2.9.2",
+    "typedi": "^0.8.0",
+    "typescript": "^3.2.4",
     "uglify-js": "^3.4.0"
   },
   "devDependencies": {
+    "@types/node": "^10.12.20",
     "@types/pixi.js": "^4.7.5",
     "run-script-os": "^1.0.3",
     "watchify": "^3.11.0"

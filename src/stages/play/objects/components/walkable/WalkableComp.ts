@@ -1,18 +1,17 @@
-import { SpriteAnimator, AnimationConfig } from '../../../../../utils/spriteAnimator';
-import { ecs } from '../../../../../engine/ECS';
+import { Component, makeComponent } from "perform-ecs"
 
-export class Walkable {
+@makeComponent
+export class WalkableComp extends Component{
     public targetX: number;
     public targetY: number;
     public speed: number;
 
-    constructor() {
-        this.targetX = 0;
-        this.targetY = 0;
-        this.speed = 2;
+    public reset(obj: WalkableComp) {
+        obj.targetX = 0;
+        obj.targetY = 0;
+        obj.speed = 2;
     }
 
 }
 
 
-export const WalkableComp = ecs.registerComponent(Walkable);

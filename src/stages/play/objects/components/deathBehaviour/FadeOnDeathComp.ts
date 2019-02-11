@@ -1,13 +1,9 @@
-import { SpriteAnimator, AnimationConfig } from '../../../../../utils/spriteAnimator';
-import { ecs } from '../../../../../engine/ECS';
-import Sprite = PIXI.Sprite;
+import { Component, makeComponent } from "perform-ecs"
 
-export class FadeOnDeathCompData {
+@makeComponent
+export class FadeOnDeathComp extends Component {
 
-    constructor() {
+    public reset(): void {
 
     }
 }
-
-
-export const FadeOnDeathComp = ecs.registerComponent(FadeOnDeathCompData);

@@ -1,14 +1,12 @@
-import { ecs } from '../../../../../engine/ECS';
+import {Component, makeComponent} from "perform-ecs"
 
 
-export class DefaultStateCompData {
+@makeComponent
+export class DefaultStateComp extends Component{
 
     public defaultAnimation: string;
 
-    constructor(state: string) {
-        this.defaultAnimation = state;
+    public reset(obj: DefaultStateComp, state: string) {
+        obj.defaultAnimation = state;
     }
 }
-
-
-export const DefaultStateComp = ecs.registerComponent(DefaultStateCompData);

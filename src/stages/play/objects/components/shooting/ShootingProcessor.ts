@@ -1,35 +1,32 @@
-import { System, RegisterGroupFunction } from '../../../../../ecs/SystemFactory';
-import { Entity } from '../../../../../ecs/Entity';
-import { PositionComp, Position, getDirectionTowardsPoint, getDirectionTowardsPointByAngle } from '../PositionComp';
-import { AnimatedView, AnimatedViewComp } from "../renderable/ViewComp";
-import { ShootingComp, ShootingCompData } from "./ShootingComp";
-import { IStateData, StateComp, StateCompData } from "../state/StateComp";
-import { ShootableEntity } from "./ShootableProcessor";
+import { EntityViewFactory, System, SystemEntityType, EntityOf } from "perform-ecs"
+import { getDirectionTowardsPointByAngle, PositionComp } from '../PositionComp';
+import { AnimatedViewComp } from "../renderable/ViewComp";
+import { ShootingComp } from "./ShootingComp";
+import { IStateData, StateComp } from "../state/StateComp";
 import { MisslesColliderComp } from "../misslesCollider/MisslesColliderComp";
+import { ShootableComp } from "./ShootableComp";
 
-type ShootingEntity = Entity & AnimatedView & Position & ShootingCompData & StateCompData;
-type TargetEntity = Entity & AnimatedView & Position;
+export class ShootingProcessor extends System {
 
-export class ShootingProcessor implements System<ShootingEntity> {
+    public view = EntityViewFactory.createView({
+        components: [AnimatedViewComp, PositionComp, ShootingComp, StateComp]
+    })
 
-    private _entities: ShootingEntity[];
-    private _targets: TargetEntity[];
 
-    private _arrowFactory: () => ShootableEntity;
+    public targets = EntityViewFactory.createView({
+        components: [AnimatedViewComp, PositionComp, MisslesColliderComp]
+    })
 
-    public init(arrowFactory: () => ShootableEntity): void {
+    private _arrowFactory: () => EntityOf<PositionComp & ShootableComp>;
+
+    public init(arrowFactory: () => EntityOf<PositionComp & ShootableComp>): void {
         this._arrowFactory = arrowFactory;
     }
 
 
-    public registerGroup(registerFunc: RegisterGroupFunction<ShootingEntity>) {
-        this._entities = registerFunc([AnimatedViewComp, PositionComp, ShootingComp, StateComp]);
-        this._targets = registerFunc([AnimatedViewComp, PositionComp, MisslesColliderComp]);
-    }
-
     public update(delta: number) {
         const now = Date.now();
-        for (const entity of this._entities) {
+        for (const entity of this.view.entities) {
 
             if (now > entity.lastTargetSearchingTimestamp && !entity.shootTarget) {
                 entity.lastTargetSearchingTimestamp = now + 500;
@@ -51,7 +48,7 @@ export class ShootingProcessor implements System<ShootingEntity> {
     }
 
 
-    private _shoot(entity: ShootingEntity): void {
+    private _shoot(entity: SystemEntityType<this, "view">): void {
         let stateData: IStateData;
         stateData = {
             type: this,
@@ -84,19 +81,23 @@ export class ShootingProcessor implements System<ShootingEntity> {
         })
     }
 
-    private _distance(e1: Position, e2: Position): number {
+    private _distance(e1: EntityOf<PositionComp>, e2: EntityOf<PositionComp>): number {
         return Math.sqrt((e1.x - e2.x) * (e1.x - e2.x) + (e1.y - e2.y) * (e1.y - e2.y));
     }
 
-    private _distancePoint(e1: Position, x2: number, y2: number): number {
+    private _distancePoint(e1: EntityOf<PositionComp>, x2: number, y2: number): number {
         return Math.sqrt((e1.x - x2) * (e1.x - x2) + (e1.y - y2) * (e1.y - y2));
     }
 
-    private _findTarget(entity: ShootingEntity): TargetEntity {
-        let foundTarget: TargetEntity;
+    private _findTarget(entity: SystemEntityType<this, "view">): SystemEntityType<this, "targets"> {
+        let foundTarget: SystemEntityType<this, "targets"> ;
+
         let minDistance: number = 999999;
-        for (const target of this._targets) {
+        for (let target of this.targets.entities) {
             const distance = this._distance(entity, target);
+            foundTarget = this.targets.entities[0];
+            this.targets.entities[9] = foundTarget;
+            target = foundTarget;
             if (target !== entity && distance <= entity.range && distance < minDistance) {
                 minDistance = distance;
                 foundTarget = target;

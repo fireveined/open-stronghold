@@ -9,7 +9,7 @@
     "watch:win32": "watchify -v -p [ tsify -p ..\\tsconfig.json ] .\\src\\index.ts -o index.js",
     "watch:darwin:linux:": "watchify -p [ tsify ] ./src/index.ts -o index.js",
     "build": "run-script-os",
-    "build:win32": "browserify .\\src\\index.ts -p [ tsify ] > index.js",
+    "build:win32": "tsc && browserify ./build/index.js  -o index.js",
     "start": "http-server",
     "build:darwin:linux:": "browserify ./src/index.ts -p [ tsify ] > index.js && uglifyjs --output ./index.js  --compress --mangle -- ./index.js"
   },
@@ -18,11 +18,11 @@
   "dependencies": {
     "@types/event-emitter": "^0.3.2",
     "@types/kefir": "^3.7.0",
-    "browserify": "^16.2.2",
+    "browserify": "^16.2.3",
     "event-emitter": "^0.3.5",
     "http-server": "^0.11.1",
     "kefir": "^3.8.3",
-    "perform-ecs": "^0.6.0",
+    "perform-ecs": "^0.6.6",
     "pixi-sound": "^2.0.2",
     "pixi-tween": "^0.2.0",
     "pixi-viewport": "^3.0.0",

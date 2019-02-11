@@ -1,31 +1,27 @@
-import { RegisterGroupFunction, System } from '../../../../../ecs/SystemFactory';
-import { Entity } from '../../../../../ecs/Entity';
-import { Position, PositionComp } from '../PositionComp';
-import { StaticView, StaticViewComp } from "../renderable/ViewComp";
-import { ShootableComp, ShootableCompData } from "./ShootableComp";
-import { EventEmmiterComp, EventEmmiterCompData } from "../EventEmmiterComp";
-import { MisslesColliderComp, MisslesColliderCoompData } from "../misslesCollider/MisslesColliderComp";
+import { EntityOf, EntityViewFactory, System, SystemEntityType } from "perform-ecs"
+import { PositionComp } from '../PositionComp';
+import { StaticViewComp } from "../renderable/ViewComp";
+import { ShootableComp } from "./ShootableComp";
+import { EventEmmiterComp } from "../EventEmmiterComp";
+import { MisslesColliderComp, } from "../misslesCollider/MisslesColliderComp";
 import { EntityDeathEvent, EntityDeathType } from "../damagable/DamagableComp";
 
 
-export type ShootableEntity = Entity & StaticView & Position & ShootableCompData & EventEmmiterCompData;
-export type TargetEntity = Entity & EventEmmiterCompData & MisslesColliderCoompData & Position;
+export class ShootableProcessor extends System {
 
-export class ShootableProcessor implements System<ShootableEntity> {
+    public view = EntityViewFactory.createView({
+        components: [StaticViewComp, PositionComp, ShootableComp, EventEmmiterComp]
+    })
 
-    private _entities: ShootableEntity[];
-    private _targets: TargetEntity[];
+    public targets = EntityViewFactory.createView({
+        components: [EventEmmiterComp, MisslesColliderComp, PositionComp]
+    })
 
-
-    public registerGroup(registerFunc: RegisterGroupFunction<ShootableEntity>) {
-        this._entities = registerFunc([StaticViewComp, PositionComp, ShootableComp, EventEmmiterComp]);
-        this._targets = registerFunc([EventEmmiterComp, MisslesColliderComp, PositionComp]) as any;
-    }
 
     public update(delta: number) {
         const maxY = 50;
         const now = Date.now();
-        for (const entity of this._entities) {
+        for (const entity of this.view.entities) {
             if (entity.hitTheGround) {
                 continue;
             }
@@ -38,7 +34,7 @@ export class ShootableProcessor implements System<ShootableEntity> {
                 entity.sprite.texture._updateUvs();
                 entity.hitTheGround = true;
                 entity.events.emitAsync(EntityDeathEvent, EntityDeathType.OTHER);
-                this._onGroundHit(entity);
+                this._onGroundHit(this.view.entities[0]);
                 continue;
             }
 
@@ -57,8 +53,9 @@ export class ShootableProcessor implements System<ShootableEntity> {
         }
     }
 
-    private _onGroundHit(entity: ShootableEntity): void {
-        for (const target of this._targets) {
+    private _onGroundHit(entity: SystemEntityType<this, "view">): void {
+        this.view.entities[0] = entity;
+        for (const target of this.targets.entities) {
             if (this._distance(entity, target.x, target.y) < entity.hitRadius) {
                 target.events.emit("shoot", entity);
                 entity.sprite.visible = false;
@@ -66,7 +63,7 @@ export class ShootableProcessor implements System<ShootableEntity> {
         }
     }
 
-    private _distance(e1: Position, x2: number, y2: number): number {
+    private _distance(e1: EntityOf<PositionComp>, x2: number, y2: number): number {
         return Math.sqrt((e1.x - x2) * (e1.x - x2) + (e1.y - y2) * (e1.y - y2));
     }
 }

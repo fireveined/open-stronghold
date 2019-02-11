@@ -1,23 +1,20 @@
-import { SpriteAnimator, AnimationConfig } from '../../../../../utils/spriteAnimator';
-import { ecs } from '../../../../../engine/ECS';
+import { Component, makeComponent } from "perform-ecs"
 import Sprite = PIXI.Sprite;
 
-export class HPBar {
+@makeComponent
+export class HPBarComp extends Component {
 
     public hpBarSprite: Sprite;
     public hpBarSpriteFrame: Sprite;
 
-    constructor() {
-        this.hpBarSprite = new PIXI.Sprite((<any>PIXI).TextureCache["hp_bar.png"]);
-        this.hpBarSprite.anchor.set(0, 0.5);
-        this.hpBarSprite.name = "HPBar";
+    public reset(obj: HPBarComp) {
+        obj.hpBarSprite = new PIXI.Sprite((<any>PIXI).TextureCache["hp_bar.png"]);
+        obj.hpBarSprite.anchor.set(0, 0.5);
+        obj.hpBarSprite.name = "HPBar";
 
-        this.hpBarSpriteFrame = new PIXI.Sprite((<any>PIXI).TextureCache["hp_bar_frame.png"]);
-        this.hpBarSpriteFrame.anchor.set(0, 0.5);
-        this.hpBarSpriteFrame.name = "HPBarFrame";
+        obj.hpBarSpriteFrame = new PIXI.Sprite((<any>PIXI).TextureCache["hp_bar_frame.png"]);
+        obj.hpBarSpriteFrame.anchor.set(0, 0.5);
+        obj.hpBarSpriteFrame.name = "HPBarFrame";
     }
 
 }
-
-
-export const HPBarComp = ecs.registerComponent(HPBar);

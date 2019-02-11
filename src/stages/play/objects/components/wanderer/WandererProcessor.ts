@@ -1,26 +1,19 @@
-import { System, RegisterGroupFunction } from '../../../../../ecs/SystemFactory';
-import { Entity } from '../../../../../ecs/Entity';
-import { PositionComp, Position } from '../PositionComp';
-import { ecs } from '../../../../../engine/ECS';
-import { AnimatedView, AnimatedViewComp } from '../renderable/ViewComp';
-import { Wanderer, WandererComp } from './WandererComp';
-import { Walkable, WalkableComp } from '../walkable/WalkableComp';
-import { IStateData, StateComp, StateCompData } from "../state/StateComp";
+import { EntityViewFactory, System } from "perform-ecs"
+import { AnimatedViewComp } from '../renderable/ViewComp';
+import { WandererComp } from './WandererComp';
+import { WalkableComp } from '../walkable/WalkableComp';
+import { IStateData, StateComp } from "../state/StateComp";
 
-type WandererEnity = Entity & AnimatedView & Wanderer & Walkable & StateCompData;
+export class WandererProcessor extends System {
 
-export class WandererProcessor implements System<WandererEnity> {
+    public view = EntityViewFactory.createView({
+        components: [WandererComp, AnimatedViewComp, WalkableComp, StateComp]
+    })
 
-    private _entities: WandererEnity[];
-
-    public registerGroup(registerFunc: RegisterGroupFunction<WandererEnity>) {
-
-        this._entities = registerFunc([WandererComp, AnimatedViewComp, WalkableComp, StateComp]);
-    }
 
     public update() {
         const now = Date.now();
-        for (const entity of this._entities) {
+        for (const entity of this.view.entities) {
 
             if (now > entity.changeWanderingTimestamp) {
                 entity.changeWanderingTimestamp = now + 2500 + Math.random() * 1000;
@@ -33,7 +26,7 @@ export class WandererProcessor implements System<WandererEnity> {
                     continue;
                 }
 
-                if(entity.canPush(entity.wandererCompPriority)) {
+                if (entity.canPush(entity.wandererCompPriority)) {
                     let stateData: IStateData;
                     stateData = {
                         type: this,

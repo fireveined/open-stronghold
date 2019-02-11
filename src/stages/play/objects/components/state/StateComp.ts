@@ -1,4 +1,4 @@
-import { ecs } from '../../../../../engine/ECS';
+import { Component,makeComponent } from "perform-ecs"
 
 export interface IStateData {
     type: any;
@@ -7,17 +7,17 @@ export interface IStateData {
     onResume: Function;
 }
 
-
-export class StateCompData {
+@makeComponent
+export class StateComp extends Component {
 
     private stack: IStateData[];
 
-    constructor() {
-        this.stack = [];
-        this.push = StateCompData.prototype.push;
-        this.remove = StateCompData.prototype.remove;
-        this.removeByType = StateCompData.prototype.removeByType;
-        this.canPush = StateCompData.prototype.canPush;
+    public reset(obj: StateComp) {
+        obj.stack = [];
+        obj.push = StateComp.prototype.push;
+        obj.remove = StateComp.prototype.remove;
+        obj.removeByType = StateComp.prototype.removeByType;
+        obj.canPush = StateComp.prototype.canPush;
     }
 
     public push(state: IStateData): void {
@@ -57,4 +57,3 @@ export class StateCompData {
 }
 
 
-export const StateComp = ecs.registerComponent(StateCompData);

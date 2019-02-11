@@ -1,34 +1,29 @@
-import { System, RegisterGroupFunction } from '../../../../../ecs/SystemFactory';
-import { Entity } from '../../../../../ecs/Entity';
-import { AnimatedView, AnimatedViewComp } from './ViewComp';
-import { PositionComp, Position } from '../PositionComp';
-import { ecs } from '../../../../../engine/ECS';
+import { AnimatedViewComp } from './ViewComp';
+import { PositionComp } from '../PositionComp';
 import { TileViewPlacementStrategy } from "../../../map/tiles/TileViewPlacementStrategy";
+import { EntityViewFactory, System } from "perform-ecs"
 
-type AnimatedViewEntity = Entity & AnimatedView & Position;
 
-export class AnimatedViewProcessor implements System<AnimatedViewEntity> {
+export class AnimatedViewProcessor extends System {
 
     private _positions: TileViewPlacementStrategy;
-    private _entities: AnimatedViewEntity[];
+
+    public view = EntityViewFactory.createView({
+        components: [AnimatedViewComp, PositionComp]
+    })
 
     public init(_positions: TileViewPlacementStrategy): void {
         this._positions = _positions;
     }
 
-    public registerGroup(registerFunc: RegisterGroupFunction<AnimatedViewEntity>) {
-        this._entities = registerFunc([AnimatedViewComp, PositionComp]);
-    }
-
     public update(delta: number) {
-        for (const entity of this._entities) {
+        for (const entity of this.view.entities) {
 
             if (entity.oldX !== entity.x || entity.oldY !== entity.y) {
 
-                //   this._positions.getTilePosition(entity.x, entity.y)
                 entity.sprite.x = entity.x * this._positions.tileWidth;
                 entity.sprite.y = entity.y * this._positions.tileHeight;
-                (<any>entity.sprite).z = entity.y ;
+                (<any>entity.sprite).z = entity.y;
                 (<any>entity.sprite).__height = 50;
                 entity.oldY = entity.y;
                 entity.oldX = entity.x;

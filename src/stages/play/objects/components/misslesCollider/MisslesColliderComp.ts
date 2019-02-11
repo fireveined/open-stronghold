@@ -1,8 +1,10 @@
-import { ecs } from '../../../../../engine/ECS';
-import EventEmitter = PIXI.utils.EventEmitter;
+import { Component, makeComponent } from "perform-ecs"
 
-export class MisslesColliderCoompData {
+@makeComponent
+export class MisslesColliderComp extends Component {
+
+    public reset(): void {
+
+    }
 }
 
-
-export const MisslesColliderComp = ecs.registerComponent(MisslesColliderCoompData);

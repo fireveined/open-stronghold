@@ -1,25 +1,25 @@
-import { SpriteAnimator, AnimationConfig } from '../../../../../utils/spriteAnimator';
-import { ecs } from '../../../../../engine/ECS';
-import { Entity } from "../../../../../ecs";
-import { Position } from "../PositionComp";
+import { Component, makeComponent } from "perform-ecs"
 
-export class ShootableCompData {
+@makeComponent
+export class ShootableComp extends Component {
 
     public startY: number;
     public targetX: number;
     public targetY: number;
-    public speed: number = 35;
+    public speed: number ;
     public yHeight: number;
-    public yVel: number = 0;
+    public yVel: number;
     public hitTheGround: boolean;
     public wholeDistance: number;
-    public hitRadius: number = 1;
-    public hitDamage: number = 8;
+    public hitRadius: number;
+    public hitDamage: number;
 
-    constructor() {
-        this.yHeight = 0;
+    public reset(obj: ShootableComp) {
+        obj.yHeight = 0;
+        obj.speed = 35;
+        obj.hitRadius = 1;
+        obj.hitDamage = 8;
     }
 
 }
 
-export const ShootableComp = ecs.registerComponent(ShootableCompData);

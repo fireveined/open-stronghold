@@ -1,10 +1,7 @@
-import { ecs } from '../../../../engine/ECS';
-import { Position, PositionComp } from '../components/PositionComp';
-import { AnimatedView, AnimatedViewComp } from '../components/renderable/ViewComp';
+import { EntityViewFactory, System, SystemEntityType, EntityOf, ComponentInitializator } from "perform-ecs"
+import {  PositionComp } from '../components/PositionComp';
+import {  AnimatedViewComp } from '../components/renderable/ViewComp';
 import { AnimationConfig } from '../../../../utils/spriteAnimator';
-import { ComponentInitializator } from '../../../../ecs/Component';
-import { EntityFactory } from '../../../../ecs/EntityFactory';
-import { Entity } from '../../../../ecs';
 import { WandererComp } from '../components/wanderer/WandererComp';
 import { WalkableComp } from '../components/walkable/WalkableComp';
 import { StateComp } from "../components/state/StateComp";
@@ -15,7 +12,7 @@ import { MisslesColliderComp } from "../components/misslesCollider/MisslesCollid
 import { HPBarComp } from "../components/damagable/HPBarComp";
 import { DamagableComp } from "../components/damagable/DamagableComp";
 import { FadeOnDeathComp } from "../components/deathBehaviour/FadeOnDeathComp";
-import { MeleeFigherComp } from "../components/meele/MeleeFigherComp";
+import { MeleeFighterComp } from "../components/meele/MeleeFigherComp";
 
 
 function createAnimConfig(config: { objectName: string, animName: string, numFrames?: number, FPS?: number, allDirections?: boolean, loop?: boolean, pingPong?: boolean }) {
@@ -88,59 +85,43 @@ const shootAnim = (name: string) => createAnimConfig({
     numFrames: 24
 });
 
-function Archer(atlas: PIXI.loaders.Resource, name: string): ComponentInitializator[] {
+export function Archer(atlas: PIXI.loaders.Resource, name: string): ComponentInitializator[] {
     return [
-        {constructor: EventEmmiterComp},
-        {constructor: MisslesColliderComp},
-        {constructor: StateComp},
-        {constructor: DamagableComp},
-        {constructor: PositionComp},
+        {component: EventEmmiterComp},
+        {component: MisslesColliderComp},
+        {component: StateComp},
+        {component: DamagableComp},
+        {component: PositionComp},
         {
-            constructor: AnimatedViewComp, args: [atlas,
+            component: AnimatedViewComp, args: [atlas,
                 [runAnim(name), idleAnim(name), shootAnim(name), shootDeathAnim(name), meleeFightAnim(name, 8), meleeDeathAnim(name)]]
         },
-        {constructor: DefaultStateComp, args: ["idle"]},
-        {constructor: WandererComp},
-        {constructor: ShootingComp},
-        {constructor: HPBarComp},
-        {constructor: FadeOnDeathComp},
-        {constructor: MeleeFigherComp}
+        {component: DefaultStateComp, args: ["idle"]},
+        {component: WandererComp},
+        {component: ShootingComp},
+        {component: HPBarComp},
+        {component: FadeOnDeathComp},
+        {component: MeleeFighterComp}
     ];
 }
 
-function Spearman(atlas: PIXI.loaders.Resource, name: string): ComponentInitializator[] {
+export function Spearman(atlas: PIXI.loaders.Resource, name: string): ComponentInitializator[] {
     return [
-        {constructor: EventEmmiterComp},
-        {constructor: MisslesColliderComp},
-        {constructor: StateComp},
-        {constructor: DamagableComp},
-        {constructor: PositionComp},
+        {component: EventEmmiterComp},
+        {component: MisslesColliderComp},
+        {component: StateComp},
+        {component: DamagableComp},
+        {component: PositionComp},
         {
-            constructor: AnimatedViewComp,
+            component: AnimatedViewComp,
             args: [atlas, [walkAnim(name), idleAnim(name), shootDeathAnim(name), meleeFightAnim(name, 12), meleeDeathAnim(name)]]
         },
-        {constructor: DefaultStateComp, args: ["idle"]},
-        {constructor: WandererComp},
-        {constructor: WalkableComp},
-        {constructor: HPBarComp},
-        {constructor: FadeOnDeathComp},
-        {constructor: MeleeFigherComp}
+        {component: DefaultStateComp, args: ["idle"]},
+        {component: WandererComp},
+        {component: WalkableComp},
+        {component: HPBarComp},
+        {component: FadeOnDeathComp},
+        {component: MeleeFighterComp}
     ];
 }
 
-export class Factory {
-
-    constructor(private _factory: EntityFactory) {
-
-    }
-
-    public create(atlas: PIXI.loaders.Resource, name: string): ArcherEntity {
-        return this._factory.create(atlas, name) as any;
-    }
-}
-
-
-export type ArcherEntity = Entity & Position & AnimatedView;
-export const ArcherEntityFactory = new Factory(ecs.createEntityFactory<typeof Archer>(Archer));
-
-export const SpearmanEntityFactory = new Factory(ecs.createEntityFactory<typeof Spearman>(Spearman));

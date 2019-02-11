@@ -3,7 +3,8 @@ import { TileViewFactory } from '../TileViewFactory';
 import { ITileView } from '../interfaces/ITileView';
 import { ITileData } from '../interfaces/ITileData';
 import { AnimationConfig, SpriteAnimator } from '../../../../../utils/spriteAnimator';
-import { PlantEntityFactory } from '../../../objects/entities/Plant';
+import { ecs } from "../../../../../engine/ecs";
+import { Plant } from "../../../objects/entities/Plant";
 
 export class TreeViewFactory extends TileViewFactory {
 
@@ -13,7 +14,7 @@ export class TreeViewFactory extends TileViewFactory {
 
     public create(tiles: ITileData[][], x: number, y: number): any {
 
-        const entity = PlantEntityFactory.create(this._atlas, this._name);
+        const entity = ecs.createEntity(Plant(this._atlas, this._name));
         entity.sprite.scale.set(Math.random() * 0.3 + 0.85);
 
         entity.x = x;

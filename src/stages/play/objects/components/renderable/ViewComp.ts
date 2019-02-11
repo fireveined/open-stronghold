@@ -1,29 +1,31 @@
-import { SpriteAnimator, AnimationConfig } from '../../../../../utils/spriteAnimator';
-import { ecs } from '../../../../../engine/ECS';
+import { AnimationConfig, SpriteAnimator } from '../../../../../utils/spriteAnimator';
+import { Component, makeComponent} from "perform-ecs"
 
-export class StaticView implements AnyView {
+@makeComponent
+export class StaticViewComp extends Component {
     public sprite: PIXI.Sprite;
     public oldX: number;
     public oldY: number;
 
-    constructor(atlas: PIXI.loaders.Resource, frameName: string) {
-        this.sprite = new PIXI.Sprite(atlas.textures[frameName + ".png"]);
-        this.sprite.anchor.set(0.5, 1);
-        this.sprite.name = frameName;
+    public reset(obj: StaticViewComp, atlas: PIXI.loaders.Resource, frameName: string) {
+        obj.sprite = new PIXI.Sprite(atlas.textures[frameName + ".png"]);
+        obj.sprite.anchor.set(0.5, 1);
+        obj.sprite.name = frameName;
     }
 
 }
 
-export class AnimatedView implements AnyView {
+@makeComponent
+export class AnimatedViewComp extends Component {
     sprite: PIXI.Sprite;
     animator: SpriteAnimator;
 
-    constructor(atlas: PIXI.loaders.Resource, animations: AnimationConfig[]) {
-        this.sprite = new PIXI.Sprite();
-        this.sprite.anchor.set(0.5, 0.65);
-        this.animator = new SpriteAnimator(atlas, animations);
-        this.animator.attachTo(this.sprite);
-        this.animator.runAnimation(animations[0].name);
+    public reset(obj: AnimatedViewComp, atlas: PIXI.loaders.Resource, animations: AnimationConfig[]) {
+        obj.sprite = new PIXI.Sprite();
+        obj.sprite.anchor.set(0.5, 0.65);
+        obj.animator = new SpriteAnimator(atlas, animations);
+        obj.animator.attachTo(this.sprite);
+        obj.animator.runAnimation(animations[0].name);
     }
 }
 
@@ -31,5 +33,3 @@ export interface AnyView {
     sprite: PIXI.Sprite
 }
 
-export const StaticViewComp = ecs.registerComponent(StaticView);
-export const AnimatedViewComp = ecs.registerComponent(AnimatedView);

@@ -1,31 +1,24 @@
-import { System, RegisterGroupFunction } from '../../../../../ecs/SystemFactory';
-import { Entity } from '../../../../../ecs/Entity';
-import { PositionComp, Position, getDirectionTowardsPoint } from '../PositionComp';
-import { ecs } from '../../../../../engine/ECS';
-import { AnimatedView, AnimatedViewComp } from '../renderable/ViewComp';
-import { Walkable, WalkableComp } from './WalkableComp';
-import { Direction } from '../../../world/Direction';
+import { System, EntityViewFactory, SystemEntityType } from "perform-ecs"
+import { getDirectionTowardsPoint,PositionComp } from '../PositionComp';
+import { AnimatedViewComp } from '../renderable/ViewComp';
+import { WalkableComp } from './WalkableComp';
 
-type WalkableEntity = Entity & AnimatedView & Walkable & Position;
+export class WalkableProcessor extends System {
+
+    public view = EntityViewFactory.createView({
+        components: [WalkableComp, AnimatedViewComp, PositionComp],
+        onEntityAdded: this.onEntityAdded.bind(this)
+    })
 
 
-
-export class WalkableProcessor implements System<WalkableEntity> {
-
-    private _entities: WalkableEntity[];
-
-    public registerGroup(registerFunc: RegisterGroupFunction<WalkableEntity>) {
-        this._entities = registerFunc([WalkableComp, AnimatedViewComp, PositionComp]);
-    }
-
-    public onEntityAdded(entity: WalkableEntity): void {
+    public onEntityAdded(entity: SystemEntityType<this, "view">): void {
         entity.targetX = entity.x;
         entity.targetY = entity.y;
     }
 
 
     public update(delta: number) {
-        for (const entity of this._entities) {
+        for (const entity of this.view.entities) {
             const signX = Math.sign(entity.targetX - entity.x);
             const signY = Math.sign(entity.targetY - entity.y);
 

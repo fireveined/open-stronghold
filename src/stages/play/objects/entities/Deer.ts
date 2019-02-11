@@ -1,21 +1,16 @@
 import { ecs } from '../../../../engine/ECS';
-import { PositionComp, Position } from '../components/PositionComp';
-import { AnimatedViewComp, AnimatedView } from '../components/renderable/ViewComp';
+import { PositionComp } from '../components/PositionComp';
+import { AnimatedViewComp } from '../components/renderable/ViewComp';
 import { AnimationConfig } from '../../../../utils/spriteAnimator';
-import { ComponentInitializator } from '../../../../ecs/Component';
-import { PlainSpriteView } from '../../map/tiles/types/Plain';
-import { create } from 'domain';
-import { EntityFactory } from '../../../../ecs/EntityFactory';
-import { Entity } from '../../../../ecs';
 import { WandererComp } from '../components/wanderer/WandererComp';
 import { WalkableComp } from '../components/walkable/WalkableComp';
 import { StateComp } from "../components/state/StateComp";
 import { DefaultStateComp } from "../components/state/DefaultStateComp";
 import { EventEmmiterComp } from "../components/EventEmmiterComp";
-import { MisslesColliderComp } from "../components/misslesCollider/MisslesColliderComp";
 import { DamagableComp } from "../components/damagable/DamagableComp";
 import { HPBarComp } from "../components/damagable/HPBarComp";
 import { FadeOnDeathComp } from "../components/deathBehaviour/FadeOnDeathComp";
+import { EntityViewFactory, System, SystemEntityType, EntityOf, ComponentInitializator } from "perform-ecs"
 
 
 function createAnimConfig(config: { objectName: string, animName: string, numFrames?: number, FPS?: number, allDirections?: boolean, loop?: boolean }) {
@@ -44,35 +39,19 @@ const sitAnim = (name: string) => createAnimConfig({
 });
 
 
-function Deer(atlas: PIXI.loaders.Resource, name: string): ComponentInitializator[] {
+export function Deer(atlas: PIXI.loaders.Resource, name: string): ComponentInitializator[] {
     return [
-        {constructor: EventEmmiterComp},
-    //    {constructor: MisslesColliderComp},
-        {constructor: DamagableComp},
-        {constructor: StateComp},
-        {constructor: PositionComp},
-        {constructor: AnimatedViewComp, args: [atlas, [walkAnim(name), sitAnim(name)]]},
-        {constructor: DefaultStateComp, args: ["idle"]},
-        {constructor: WandererComp},
-        {constructor: WalkableComp},
-        {constructor: HPBarComp},
-        {constructor: FadeOnDeathComp}
+        {component: EventEmmiterComp},
+        //    {constructor: MisslesColliderComp},
+        {component: DamagableComp},
+        {component: StateComp},
+        {component: PositionComp},
+        {component: AnimatedViewComp, args: [atlas, [walkAnim(name), sitAnim(name)]]},
+        {component: DefaultStateComp, args: ["idle"]},
+        {component: WandererComp},
+        {component: WalkableComp},
+        {component: HPBarComp},
+        {component: FadeOnDeathComp}
     ];
 
 }
-
-
-export class Factory {
-
-    constructor(private _factory: EntityFactory) {
-
-    }
-
-    public create(atlas: PIXI.loaders.Resource, name: string): DeerEntity {
-        return this._factory.create(atlas, name) as any;
-    }
-}
-
-
-export type DeerEntity = Entity & Position & AnimatedView;
-export const DeerEntityFactory = new Factory(ecs.createEntityFactory<typeof Deer>(Deer));

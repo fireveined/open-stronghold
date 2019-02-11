@@ -1,29 +1,18 @@
-import { System, RegisterGroupFunction } from '../../../../../ecs/SystemFactory';
-import { Entity } from '../../../../../ecs/Entity';
-import { PositionComp, Position, getDirectionTowardsPoint } from '../PositionComp';
-import { ecs } from '../../../../../engine/ECS';
-import { AnimatedView, AnimatedViewComp, AnyView } from '../renderable/ViewComp';
-import { Direction } from '../../../world/Direction';
-import { Damagable, DamagableComp, EntityDeathEvent } from "./DamagableComp";
-import { IStateData, StateComp, StateCompData } from "../state/StateComp";
-import { EventEmmiterComp, EventEmmiterCompData } from "../EventEmmiterComp";
-import { ShootableEntity } from "../shooting/ShootableProcessor";
-import { HPBar, HPBarComp } from "./HPBarComp";
-import { MisslesColliderComp } from "../misslesCollider/MisslesColliderComp";
-import { ComponentConstructor } from "../../../../../ecs/Component";
-
-type HPBarEntity = Entity & Damagable & AnimatedView & HPBar;
+import { AnimatedViewComp } from '../renderable/ViewComp';
+import { DamagableComp, EntityDeathEvent } from "./DamagableComp";
+import { HPBarComp } from "./HPBarComp";
+import { EntityViewFactory, System, SystemEntityType } from "perform-ecs"
 
 
-export class HPBarProcessor implements System<HPBarEntity> {
+export class HPBarProcessor extends System {
 
-    private _entities: HPBarEntity[];
+    public view = EntityViewFactory.createView({
+        components: [DamagableComp, HPBarComp, AnimatedViewComp],
+        onEntityAdded: this.onEntityAdded.bind(this)
+    })
 
-    public registerGroup(registerFunc: RegisterGroupFunction<HPBarEntity>) {
-        this._entities = registerFunc([DamagableComp, HPBarComp, AnimatedViewComp]);
-    }
 
-    public onEntityAdded(entity: HPBarEntity): void {
+    public onEntityAdded(entity: SystemEntityType<this, "view">): void {
         setTimeout(() => {
             entity.sprite.addChild(entity.hpBarSprite);
             entity.sprite.addChild(entity.hpBarSpriteFrame);
@@ -43,7 +32,7 @@ export class HPBarProcessor implements System<HPBarEntity> {
 
     public update(delta: number) {
         let hpPercent: number;
-        for (const entity of this._entities) {
+        for (const entity of this.view.entities) {
             hpPercent = entity.currentHP / entity.maxHP;
             entity.hpBarSprite.scale.x = hpPercent;
             const r = 1 - hpPercent

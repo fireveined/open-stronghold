@@ -1,21 +1,19 @@
-import { SpriteAnimator, AnimationConfig } from '../../../../../utils/spriteAnimator';
-import { ecs } from '../../../../../engine/ECS';
+import { Component, makeComponent } from "perform-ecs"
 
-export class Wanderer {
+@makeComponent
+export class WandererComp extends Component {
     public changeWanderingTimestamp: number;
     public currentlyWandering: boolean;
     public wanderingDuration: number;
     public idleDuration: number;
     public wandererCompPriority: number;
 
-    constructor(wanderingDuration: number, idleDuration: number, priority: number) {
-        this.changeWanderingTimestamp = 0;
-        this.wanderingDuration = wanderingDuration;
-        this.idleDuration = idleDuration;
-        this.wandererCompPriority = priority || 1;
+    public reset(obj: WandererComp, wanderingDuration: number, idleDuration: number, priority: number) {
+        obj.changeWanderingTimestamp = 0;
+        obj.wanderingDuration = wanderingDuration;
+        obj.idleDuration = idleDuration;
+        obj.wandererCompPriority = priority || 1;
     }
-
 }
 
 
-export const WandererComp = ecs.registerComponent(Wanderer);

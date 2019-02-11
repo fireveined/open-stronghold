@@ -1,13 +1,11 @@
-import { ecs } from '../../../../engine/ECS';
+import { Component, makeComponent } from "perform-ecs"
 import EventEmitter = PIXI.utils.EventEmitter;
 
-export class EventEmmiterCompData {
+@makeComponent
+export class EventEmmiterComp extends Component{
     public events: EventEmitter;
 
-    constructor() {
-        this.events = new EventEmitter();
+    public reset(obj: EventEmmiterComp) {
+        obj.events = new EventEmitter();
     }
 }
-
-
-export const EventEmmiterComp = ecs.registerComponent(EventEmmiterCompData);

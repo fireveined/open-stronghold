@@ -1,34 +1,26 @@
-import { RegisterGroupFunction, System } from '../../../../../ecs/SystemFactory';
-import { Entity } from '../../../../../ecs/Entity';
-import { getDirectionTowardsPointByAngle, Position, PositionComp } from '../PositionComp';
-import { AnimatedView, AnimatedViewComp } from "../renderable/ViewComp";
-import { IStateData, StateComp, StateCompData } from "../state/StateComp";
+import { getDirectionTowardsPointByAngle, PositionComp } from '../PositionComp';
+import { AnimatedViewComp } from "../renderable/ViewComp";
+import { IStateData, StateComp } from "../state/StateComp";
 import { MisslesColliderComp } from "../misslesCollider/MisslesColliderComp";
-import { MeleeFigherComp, MeleeFighterCompData } from "./MeleeFigherComp";
-import { EventEmmiterComp, EventEmmiterCompData } from "../EventEmmiterComp";
+import { MeleeFighterComp } from "./MeleeFigherComp";
+import { EventEmmiterComp } from "../EventEmmiterComp";
+import { EntityViewFactory, System, SystemEntityType, EntityOf } from "perform-ecs"
 
-type MeeleFighterEntity =
-    Entity
-    & AnimatedView
-    & Position
-    & MeleeFighterCompData
-    & StateCompData
-    & EventEmmiterCompData;
-type TargetEntity = Entity & AnimatedView & Position & EventEmmiterCompData;
 
-export class MeleeFighterProcessor implements System<MeeleFighterEntity> {
+export class MeleeFighterProcessor extends System {
 
-    private _entities: MeeleFighterEntity[];
-    private _targets: TargetEntity[];
+    public view = EntityViewFactory.createView({
+        components: [AnimatedViewComp, PositionComp, MeleeFighterComp, StateComp, EventEmmiterComp]
+    })
 
-    public registerGroup(registerFunc: RegisterGroupFunction<MeeleFighterEntity>) {
-        this._entities = registerFunc([AnimatedViewComp, PositionComp, MeleeFigherComp, StateComp, EventEmmiterComp]);
-        this._targets = registerFunc([AnimatedViewComp, PositionComp, MisslesColliderComp]);
-    }
+    public targets = EntityViewFactory.createView({
+        components: [AnimatedViewComp, PositionComp, MisslesColliderComp]
+    })
+
 
     public update(delta: number) {
         const now = Date.now();
-        for (const entity of this._entities) {
+        for (const entity of this.view.entities) {
 
             if (now > entity.lastMeleeTargetSearchTime && !entity.meleeTarget) {
                 entity.lastMeleeTargetSearchTime = now + 500;
@@ -50,9 +42,9 @@ export class MeleeFighterProcessor implements System<MeeleFighterEntity> {
     }
 
 
-    private _attack(entity: MeeleFighterEntity): void {
+    private _attack(entity: SystemEntityType<this, "view">): void {
 
-        if(!entity.meleeState) {
+        if (!entity.meleeState) {
             let stateData: IStateData;
             stateData = {
                 type: this,
@@ -70,7 +62,7 @@ export class MeleeFighterProcessor implements System<MeeleFighterEntity> {
         if (entity.animator.runIfNotRunning("melee_fight")) {
             entity.animator.events.on('frame', (frame: number) => {
                 if (frame === entity.meleeHitFrame) {
-                    const target = entity.meleeTarget as TargetEntity;
+                    const target = entity.meleeTarget;
                     target.events.emit("melee_attacked", entity.meleeDamage);
                     entity.events.emit("melee_attack");
                 }
@@ -88,16 +80,16 @@ export class MeleeFighterProcessor implements System<MeeleFighterEntity> {
         }
     }
 
-    private _distance(e1: Position, e2: Position): number {
+    private _distance(e1: EntityOf<PositionComp>, e2: EntityOf<PositionComp>): number {
         return Math.sqrt((e1.x - e2.x) * (e1.x - e2.x) + (e1.y - e2.y) * (e1.y - e2.y));
     }
 
-    private _distancePoint(e1: Position, x2: number, y2: number): number {
+    private _distancePoint(e1: EntityOf<PositionComp>, x2: number, y2: number): number {
         return Math.sqrt((e1.x - x2) * (e1.x - x2) + (e1.y - y2) * (e1.y - y2));
     }
 
-    private _findTarget(entity: MeeleFighterEntity): TargetEntity {
-        for (const target of this._targets) {
+    private _findTarget(entity: SystemEntityType<this, "view">): SystemEntityType<this, "targets"> {
+        for (const target of this.targets.entities) {
             const distance = this._distance(entity, target);
             if (target !== entity && distance <= entity.meleeRange) {
                 return target;

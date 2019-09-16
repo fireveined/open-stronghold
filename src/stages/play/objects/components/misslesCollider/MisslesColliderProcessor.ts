@@ -6,7 +6,8 @@ import { MisslesColliderComp } from "./MisslesColliderComp";
 export class MisslesColliderProcessor extends System {
 
     public view = EntityViewFactory.createView({
-        components: [MisslesColliderComp, EventEmmiterComp]
+        components: [MisslesColliderComp, EventEmmiterComp],
+        onEntityAdded: this.onEntityAdded.bind(this)
     })
 
 

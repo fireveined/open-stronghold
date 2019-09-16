@@ -4,7 +4,7 @@ import { IStateData, StateComp } from "../state/StateComp";
 import { MisslesColliderComp } from "../misslesCollider/MisslesColliderComp";
 import { MeleeFighterComp } from "./MeleeFigherComp";
 import { EventEmmiterComp } from "../EventEmmiterComp";
-import { EntityViewFactory, System, SystemEntityType, EntityOf } from "perform-ecs"
+import { EntityOf, EntityViewFactory, System, SystemEntityType } from "perform-ecs"
 
 
 export class MeleeFighterProcessor extends System {
@@ -36,6 +36,7 @@ export class MeleeFighterProcessor extends System {
                 if (distance > entity.meleeRange) {
                     entity.meleeTarget = null;
                     entity.removeByType(this);
+                    entity.meleeState = null;
                 }
             }
         }
@@ -51,6 +52,8 @@ export class MeleeFighterProcessor extends System {
                 priority: entity.meleeFightPriority,
                 onPause: () => {
                     entity.remove(stateData);
+                    entity.meleeState = null;
+                    entity.meleeTarget = null;
                 },
                 onResume: () => {
                 }
@@ -60,6 +63,7 @@ export class MeleeFighterProcessor extends System {
         }
 
         if (entity.animator.runIfNotRunning("melee_fight")) {
+
             entity.animator.events.on('frame', (frame: number) => {
                 if (frame === entity.meleeHitFrame) {
                     const target = entity.meleeTarget;

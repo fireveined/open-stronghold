@@ -1,5 +1,5 @@
-import { System, EntityViewFactory, SystemEntityType } from "perform-ecs"
-import { getDirectionTowardsPoint,PositionComp } from '../PositionComp';
+import { EntityViewFactory, System, SystemEntityType } from "perform-ecs"
+import { getDirectionTowardsPoint, PositionComp } from '../PositionComp';
 import { AnimatedViewComp } from '../renderable/ViewComp';
 import { WalkableComp } from './WalkableComp';
 
@@ -18,6 +18,7 @@ export class WalkableProcessor extends System {
 
 
     public update(delta: number) {
+
         for (const entity of this.view.entities) {
             const signX = Math.sign(entity.targetX - entity.x);
             const signY = Math.sign(entity.targetY - entity.y);

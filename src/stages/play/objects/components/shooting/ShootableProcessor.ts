@@ -34,7 +34,7 @@ export class ShootableProcessor extends System {
                 entity.sprite.texture._updateUvs();
                 entity.hitTheGround = true;
                 entity.events.emitAsync(EntityDeathEvent, EntityDeathType.OTHER);
-                this._onGroundHit(this.view.entities[0]);
+                this._onGroundHit(entity);
                 continue;
             }
 
@@ -54,7 +54,6 @@ export class ShootableProcessor extends System {
     }
 
     private _onGroundHit(entity: SystemEntityType<this, "view">): void {
-        this.view.entities[0] = entity;
         for (const target of this.targets.entities) {
             if (this._distance(entity, target.x, target.y) < entity.hitRadius) {
                 target.events.emit("shoot", entity);

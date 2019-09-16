@@ -16,6 +16,7 @@ export class Mouse {
         })
     }
 
+
     public getX(){
         return this.x;
     }

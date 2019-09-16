@@ -1,4 +1,4 @@
-import { Component,makeComponent } from "perform-ecs"
+import { Component, makeComponent } from "perform-ecs"
 
 export interface IStateData {
     type: any;
@@ -14,10 +14,10 @@ export class StateComp extends Component {
 
     public reset(obj: StateComp) {
         obj.stack = [];
-        obj.push = StateComp.prototype.push;
-        obj.remove = StateComp.prototype.remove;
-        obj.removeByType = StateComp.prototype.removeByType;
-        obj.canPush = StateComp.prototype.canPush;
+        obj.push = StateComp.prototype.push.bind(obj);
+        obj.remove = StateComp.prototype.remove.bind(obj);
+        obj.removeByType = StateComp.prototype.removeByType.bind(obj);
+        obj.canPush = StateComp.prototype.canPush.bind(obj);
     }
 
     public push(state: IStateData): void {
@@ -27,6 +27,7 @@ export class StateComp extends Component {
         }
         this.stack.push(state);
         state.onResume();
+
     }
 
 
@@ -39,6 +40,9 @@ export class StateComp extends Component {
         const index = this.stack.indexOf(state);
         const elem = this.stack[index];
 
+        if (index === -1) {
+            console.log("Can't find state", state, this);
+        }
         this.stack.splice(index, 1);
         const stackLen = this.stack.length
         if (index === stackLen) {
@@ -48,6 +52,9 @@ export class StateComp extends Component {
 
     public removeByType(type: any): void {
         const index = this.stack.findIndex((state) => state.type === type);
+        if (index === -1) {
+            console.log("Can't findd state", type, this);
+        }
         this.stack.splice(index, 1);
         const stackLen = this.stack.length
         if (index === stackLen) {

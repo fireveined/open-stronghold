@@ -12,10 +12,12 @@ export class ShootingProcessor extends System {
         components: [AnimatedViewComp, PositionComp, ShootingComp, StateComp]
     })
 
-
     public targets = EntityViewFactory.createView({
         components: [AnimatedViewComp, PositionComp, MisslesColliderComp]
     })
+
+
+
 
     private _arrowFactory: () => EntityOf<PositionComp & ShootableComp>;
 
@@ -95,9 +97,6 @@ export class ShootingProcessor extends System {
         let minDistance: number = 999999;
         for (let target of this.targets.entities) {
             const distance = this._distance(entity, target);
-            foundTarget = this.targets.entities[0];
-            this.targets.entities[9] = foundTarget;
-            target = foundTarget;
             if (target !== entity && distance <= entity.range && distance < minDistance) {
                 minDistance = distance;
                 foundTarget = target;

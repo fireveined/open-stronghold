@@ -20,9 +20,9 @@ export class StaticViewProcessor extends System {
         for (const entity of this.view.entities) {
             if (entity.oldX !== entity.x || entity.oldY !== entity.oldY) {
 
-                //   this._positions.getTilePosition(entity.x, entity.y)
-                entity.sprite.position.x = entity.x * this._positions.tileWidth;
-                entity.sprite.position.y = entity.y * this._positions.tileHeight;
+                this._positions.getTilePosition(entity.x, entity.y)
+                entity.sprite.position.x = this._positions.x
+                entity.sprite.position.y = this._positions.y;
                 (<any>entity.sprite).z = entity.y;
                 entity.oldY = entity.y;
                 entity.oldX = entity.x;

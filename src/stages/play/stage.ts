@@ -24,6 +24,12 @@ import { FadeOnDeathProcessor } from "./objects/components/deathBehaviour/FadeOn
 import { MeleeFighterProcessor } from "./objects/components/meele/MeleeFighterProcessor";
 import { ecs } from "../../engine/ecs";
 import { Archer, Spearman } from "./objects/entities/Archer";
+import { EventEmmiterComp } from "./objects/components/EventEmmiterComp";
+import { EntityDeathEvent } from "./objects/components/damagable/DamagableComp";
+import { Barracks, Hunter } from "./objects/entities/Bulding";
+import { TilePicker } from "./map/TilePicker";
+import { CollisionMap } from "./map/CollisionMap";
+import { MapColliderSystem } from "./objects/components/mapCollider/MapColliderSystem";
 
 
 let archer;
@@ -31,6 +37,16 @@ let archer;
 @Service()
 export class PlayStage extends BaseStage {
     static resources = Resources;
+
+    public createEntity(data: any): any {
+        const entity: EventEmmiterComp = ecs.createEntity(data) as any;
+        if (entity.events) {
+            entity.events.on(EntityDeathEvent, (promiseFunc: Function, promise: Promise<any>) => {
+                promise.then(() => ecs.removeEntity(entity as any));
+            })
+        }
+        return entity as any;
+    }
 
     public onInit() {
         let mapStage = new PIXI.Container();
@@ -45,15 +61,16 @@ export class PlayStage extends BaseStage {
         ecs.registerSystem(new WandererProcessor());
         ecs.registerSystem(new WalkableProcessor());
         const shootingSystem = ecs.registerSystem(new ShootingProcessor());
-
+        const mapColliderSystem = ecs.registerSystem(new MapColliderSystem());
         ecs.registerSystem(new ShootableProcessor());
         ecs.registerSystem(new DamagableProcessor());
         ecs.registerSystem(new MisslesColliderProcessor());
         ecs.registerSystem(new HPBarProcessor());
         ecs.registerSystem(new FadeOnDeathProcessor());
         ecs.registerSystem(new MeleeFighterProcessor());
+        ecs.registerSystem(mapColliderSystem);
         console.log(ecs);
-        const tileMapFactory = new TileMapFactory(new TileMapLoader(50, 80));
+        const tileMapFactory = new TileMapFactory(new TileMapLoader(32, 32));
         animatedViewProcessor.init(tileMapFactory.tilePlacementStrateegy);
         staticViewProcessor.init(tileMapFactory.tilePlacementStrateegy);
 
@@ -64,12 +81,15 @@ export class PlayStage extends BaseStage {
         tileMapFactory.registerTileType(4, new TreeViewFactory(Resources.TREES.loaded, "shurb2"))
 
         const map = tileMapFactory.create();
+        const collisions = new CollisionMap(map);
 
+        mapColliderSystem.init(collisions);
         shootingSystem.init(() => {
-            const arrow = ecs.createEntity(Arrow(Resources.ARCHER.loaded, "archer"));
+            const arrow = this.createEntity(Arrow(Resources.ARCHER.loaded, "archer"));
             map.addChild(arrow.sprite);
             return arrow;
         })
+
 
         // for (let i = 0; i < 5; i++) {
         //     const deer = DeerEntityFactory.create(Resources.DEER.loaded, "deer");
@@ -85,20 +105,28 @@ export class PlayStage extends BaseStage {
         //     map.addChild(deer.sprite);
         // }
         for (let i = 0; i < 65; i++) {
-            const archer = ecs.createEntity(Archer(Resources.ARCHER.loaded, "archer"));
+            const archer = this.createEntity(Archer(Resources.ARCHER.loaded, "archer"));
             archer.x = Math.random() * 42 + 8;
             archer.y = Math.random() * 35 + 4;
             map.addChild(archer.sprite);
         }
 
         for (let i = 0; i < 55; i++) {
-            const archer = ecs.createEntity(Spearman(Resources.SPEARMAN.loaded, "spearman"));
+            const archer = this.createEntity(Spearman(Resources.SPEARMAN.loaded, "spearman"));
             archer.x = Math.random() * 45 + 8;
             archer.y = Math.random() * 35 + 4;
             map.addChild(archer.sprite);
         }
 
+        let building = this.createEntity(Hunter(3, 7));
+        map.addChild(building.sprite);
 
+        building = this.createEntity(Barracks(9, 7));
+        map.addChild(building.sprite);
+
+
+        const picker = new TilePicker(collisions, map);
+        picker.start();
         this.stage.addChild(map);
 
 
@@ -115,7 +143,7 @@ export class PlayStage extends BaseStage {
     }
 
     public onUpdate(delta: number) {
-
+        ecs.update(delta);
     }
 
     public onRemove() {

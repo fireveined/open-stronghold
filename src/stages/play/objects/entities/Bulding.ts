@@ -1,27 +1,38 @@
-import { ecs } from '../../../../engine/ECS';
-import {  PositionComp } from '../components/PositionComp';
-import {  StaticViewComp } from '../components/renderable/ViewComp';
+import { PositionComp } from '../components/PositionComp';
+import { StaticViewComp } from '../components/renderable/ViewComp';
+import { AnimationConfig } from '../../../../utils/spriteAnimator';
+import { ComponentInitializator } from "perform-ecs"
+import { MapColliderComp } from "../components/mapCollider/MapColliderComp";
+import { Resources } from "../../resources";
+import { IPoint } from "../../map/CollisionMap";
+
+function windAnimation(name: string): AnimationConfig {
+    return {
+        name: "idle",
+        textureName: (frameNumber: number) => `${name} (${frameNumber + 1}).png`,
+        numFrames: 12,
+        FPS: 8 + Math.round(Math.random() * 4),
+        pingPong: true,
+        loop: true
+    }
+};
+
+export function Building(atlas: PIXI.loaders.Resource, name: string, x: number, y: number, collisionFields: IPoint[]): ComponentInitializator[] {
+    return [
+        {component: PositionComp, args: [x, y]},
+        {component: StaticViewComp, args: [atlas, name]},
+        {component: MapColliderComp, args: [collisionFields]}
+    ];
+
+}
 
 
+export function Hunter(x: number, y: number): ComponentInitializator[] {
+    const collisionFields: IPoint[] = [{x: 2, y: 2}];
+    return Building(Resources.BUILDINGS.loaded, "hunter", x, y, collisionFields);
+}
 
-// function building(atlas: PIXI.loaders.Resource, name: string): ComponentInitializator[] {
-//     return [
-//         { constructor: PositionComp },
-//         { constructor: StaticViewComp, args: [atlas, name] }
-//     ];
-//
-// }
-//
-// export class Factory {
-//
-//     constructor(private _factory: EntityFactory) {
-//
-//     }
-//     public create(atlas: PIXI.loaders.Resource, name: string): BuldingEntity {
-//         return this._factory.create(atlas, name) as any;
-//     }
-// }
-//
-//
-// export type BuldingEntity = Entity & Position & StaticView;
-// export const BuildingEntityFactory = new Factory(ecs.createEntityFactory<typeof building>(building));
+export function Barracks(x: number, y: number): ComponentInitializator[] {
+    const collisionFields: IPoint[] = [{x: 3, y: 3}];
+    return Building(Resources.BUILDINGS.loaded, "barracks", x, y, collisionFields);
+}

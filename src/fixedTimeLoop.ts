@@ -1,6 +1,3 @@
-import { ecs } from './engine/ECS';
-import TweenManager = tween.TweenManager;
-
 declare type FixedTimeLoopCallback = (delta: number) => void;
 
 interface FixedTimeLoopConfig {
@@ -29,14 +26,14 @@ export class FixedTimeLoop {
 
     private update() {
         let delta = Date.now() - this.prevUpdateTimestamp;
-        PIXI.tweenManager.update(delta/1000);
+        PIXI.tweenManager.update(delta / 1000);
         while (delta > this.frameTime) {
             this.callback(this.frameTime);
 
             this._functions.forEach(obj => obj.func.call(obj.bind, this.frameTime))
             delta -= this.frameTime;
             this.prevUpdateTimestamp += this.frameTime;
-            ecs.update(this.frameTime);
+
         }
     }
 }

@@ -24,7 +24,7 @@ export class AnimatedViewComp extends Component {
         obj.sprite = new PIXI.Sprite();
         obj.sprite.anchor.set(0.5, 0.65);
         obj.animator = new SpriteAnimator(atlas, animations);
-        obj.animator.attachTo(this.sprite);
+        obj.animator.attachTo(obj.sprite);
         obj.animator.runAnimation(animations[0].name);
     }
 }

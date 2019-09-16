@@ -8,9 +8,9 @@ export class PositionComp extends Component {
     public height: number;
     public direction: number;
 
-    public reset(obj: PositionComp) {
-        obj.x = 0;
-        obj.y = 0;
+    public reset(obj: PositionComp, x: number, y: number) {
+        obj.x = x || 0;
+        obj.y = y || 0;
         obj.width = 20;
         obj.height = 20;
         obj.direction = 0;

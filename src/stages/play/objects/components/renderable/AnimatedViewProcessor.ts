@@ -21,8 +21,9 @@ export class AnimatedViewProcessor extends System {
 
             if (entity.oldX !== entity.x || entity.oldY !== entity.y) {
 
-                entity.sprite.x = entity.x * this._positions.tileWidth;
-                entity.sprite.y = entity.y * this._positions.tileHeight;
+                this._positions.getTilePosition(entity.x, entity.y)
+                entity.sprite.position.x = this._positions.x
+                entity.sprite.position.y = this._positions.y;
                 (<any>entity.sprite).z = entity.y;
                 (<any>entity.sprite).__height = 50;
                 entity.oldY = entity.y;

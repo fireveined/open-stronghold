@@ -21,7 +21,7 @@ export class HPBarProcessor extends System {
             entity.hpBarSpriteFrame.y = y;
             entity.hpBarSpriteFrame.x = -entity.hpBarSpriteFrame.width / 2;
             entity.hpBarSprite.x = entity.hpBarSpriteFrame.x + 1;
-        }, 0);
+        }, 0);  
 
         entity.events.on(EntityDeathEvent, () => {
             entity.hpBarSprite.visible = false;
